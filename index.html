@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Display</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin:0; font: 16px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background:#0b0d10; color:#e8eaed; }
+    header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; background:#11151a; border-bottom:1px solid #1f2329;}
+    header h1 { font-size:16px; margin:0; font-weight:600; letter-spacing:.2px; }
+    #status { font-size:12px; opacity:.8; }
+    #wrap { padding:24px; max-width: 1100px; margin:auto; }
+    .card { background:#12161c; padding:16px; border-radius:14px; margin:12px 0; box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 10px 20px rgba(0,0,0,.25); }
+    .card h3 { margin:0 0 8px 0; font-size:18px; }
+    .muted { opacity:.8; }
+    pre { white-space: pre-wrap; word-wrap: break-word; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; background:#1b2230; }
+    a { color:#8ab4f8; text-decoration:none; }
+    a:hover { text-decoration:underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>AI Display</h1>
+    <div id="status" class="pill">Laddar konfiguration…</div>
+  </header>
+  <div id="wrap">
+    <div class="card">
+      <h3>Välkommen</h3>
+      <p class="muted">Väntar på data på MQTT-topic för den här skärmen.</p>
+      <pre id="debug"></pre>
+    </div>
+  </div>
+
+  <!-- Paho MQTT via CDN -->
+  <script src="https://unpkg.com/paho-mqtt@1.1.0/paho-mqtt.min.js"></script>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

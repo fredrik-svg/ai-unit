@@ -1,0 +1,15 @@
+[Unit]
+Description=Pi Display Kiosk (Chromium)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Environment=DISPLAY=:0
+Type=simple
+User=pi
+ExecStart=/home/pi/pi-display/scripts/kiosk.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=graphical.target

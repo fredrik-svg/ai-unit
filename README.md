@@ -4,7 +4,8 @@ Minimal webbaserad display för Raspberry Pi 4/5 i kiosk-läge. Prenumererar på
 och renderar inkommande JSON enligt ett enkelt schema.
 
 ## Funktion
-- Prenumererar: `t/<tenant>/display/<screenId>/render` (QoS 0)
+- Prenumererar: `t/<tenant>/display/<screenId>/render` (QoS 0, konfigurerbart via `topicTemplate`)
+- Stöd för olika MQTT-brokers, inklusive **HiveMQ Cloud**
 - Payload-format (exempel):
   ```json
   { "view": "cards", "items": [ { "title": "Svar", "body": "Hej världen" } ] }
@@ -19,13 +20,70 @@ och renderar inkommande JSON enligt ett enkelt schema.
 3. Kopiera exempelkonfig och fyll i dina broker-uppgifter:
    ```bash
    cp public/config.example.json public/config.json
-   # redigera public/config.json (host, port, username, password, tenant, screenId)
+   # redigera public/config.json (se nedan för exempel)
    ```
 4. Starta i dev-läge:
    ```bash
    npm run dev -- --host
    ```
    Öppna i Chromium: `http://<pi-ip>:5173`
+
+## Konfiguration
+
+### HiveMQ Cloud
+För att använda **HiveMQ Cloud**, redigera `public/config.json`:
+
+```json
+{
+  "screenId": "main",
+  "tenant": "GENIO",
+  "mqtt": {
+    "host": "xxxxxxxx.s1.eu.hivemq.cloud",
+    "port": 8884,
+    "path": "/mqtt",
+    "useTLS": true,
+    "username": "din-hivemq-användare",
+    "password": "ditt-hivemq-lösenord",
+    "clientIdPrefix": "display-"
+  },
+  "topicTemplate": "t/{tenant}/display/{screenId}/render",
+  "debug": false
+}
+```
+
+**Hitta dina HiveMQ Cloud-inställningar:**
+- Logga in på [HiveMQ Cloud Console](https://console.hivemq.cloud/)
+- Välj ditt cluster
+- Använd **Cluster URL** som `host` (utan `https://`)
+- Standardport för WebSocket över TLS: **8884**
+- Path: **/mqtt**
+- Skapa användare under "Access Management" → "Credentials"
+
+### Anpassa MQTT Topic
+Du kan ändra vilket topic displayen lyssnar på genom att redigera `topicTemplate` i `public/config.json`:
+
+**Standard:**
+```json
+"topicTemplate": "t/{tenant}/display/{screenId}/render"
+```
+
+**Exempel på andra topics:**
+```json
+"topicTemplate": "home/{tenant}/screen/{screenId}"
+"topicTemplate": "displays/{screenId}/content"
+"topicTemplate": "custom/topic/path"
+```
+
+Variabler som kan användas:
+- `{tenant}` - ersätts med värdet av `tenant`
+- `{screenId}` - ersätts med värdet av `screenId`
+
+### Andra MQTT-brokers
+För andra brokers (Mosquitto, EMQX, etc.):
+- Ändra `host` till din broker-URL
+- Justera `port` (vanliga värden: 8083, 8884, 9001)
+- Ändra `path` vid behov (vanligt: `/mqtt` eller `/`)
+- Sätt `useTLS: false` för okrypterade anslutningar (ej rekommenderat i produktion)
 
 ## Produktion (bygg & kör)
 ```bash

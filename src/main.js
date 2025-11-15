@@ -1,6 +1,7 @@
 const statusEl = document.getElementById('status');
 const debugEl = document.getElementById('debug');
 const wrap = document.getElementById('wrap');
+const topicDisplayEl = document.getElementById('topic-display');
 
 async function loadConfig() {
   try {
@@ -82,6 +83,12 @@ function connectMqtt(cfg) {
 
   setStatus('Ansluter…');
   client.connect(connectOptions());
+  
+  // Display the topic on the page
+  if (topicDisplayEl) {
+    topicDisplayEl.textContent = 'Topic: ' + topic;
+  }
+  
   return { client, topic };
 }
 

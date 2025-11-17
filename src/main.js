@@ -57,6 +57,11 @@ function connectMqtt(cfg) {
     .replace('{tenant}', cfg.tenant)
     .replace('{screenId}', cfg.screenId);
   
+  // Display the topic immediately so users can see what the app is trying to subscribe to
+  if (topicDisplayEl) {
+    topicDisplayEl.textContent = 'Topic: ' + topic;
+  }
+  
   // Validate that all placeholders were replaced
   if (topic.includes('{') || topic.includes('}')) {
     const err = 'Fel: Topic-mallen innehåller ej ersatta platshållare: ' + topic;
@@ -113,11 +118,6 @@ function connectMqtt(cfg) {
 
   setStatus('Ansluter…');
   client.connect(connectOptions());
-  
-  // Display the topic on the page
-  if (topicDisplayEl) {
-    topicDisplayEl.textContent = 'Topic: ' + topic;
-  }
   
   return { client, topic };
 }

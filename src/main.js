@@ -15,10 +15,10 @@ if (versionEl) {
 }
 
 function resolveConfigUrl() {
-  let basePath = (import.meta?.env?.BASE_URL ?? '/');
-  if (!basePath.endsWith('/')) basePath += '/';
-  if (!basePath.startsWith('/')) basePath = '/' + basePath;
-  return basePath === '/' ? '/config.json' : `${basePath}config.json`;
+  const base = window.location.href.replace(/[?#].*$/, '');
+  // Always resolve config.json relative to the folder the app is served from
+  const url = new URL('./config.json', base.endsWith('/') ? base : base + '/');
+  return url.href;
 }
 
 async function loadConfig() {

@@ -10,26 +10,38 @@
   <style>
     :root { color-scheme: dark; }
     body { margin:0; font: 16px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background:#0b0d10; color:#e8eaed; }
-    header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; background:#11151a; border-bottom:1px solid #1f2329;}
+    header { display:flex; align-items:flex-start; justify-content:space-between; padding:16px 20px; background:#11151a; border-bottom:1px solid #1f2329; flex-wrap:wrap; gap:8px;}
     header h1 { font-size:16px; margin:0; font-weight:600; letter-spacing:.2px; }
-    #status { font-size:12px; opacity:.8; }
+    .status-group { display:flex; flex-direction:column; gap:6px; align-items:flex-end; }
+    @media (max-width: 640px) {
+      .status-group { width:100%; align-items:flex-start; }
+    }
+    #status { font-size:12px; opacity:.9; }
     #wrap { padding:24px; max-width: 1100px; margin:auto; }
     .card { background:#12161c; padding:16px; border-radius:14px; margin:12px 0; box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 10px 20px rgba(0,0,0,.25); }
     .card h3 { margin:0 0 8px 0; font-size:18px; }
     .muted { opacity:.8; }
     pre { white-space: pre-wrap; word-wrap: break-word; }
-    .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; background:#1b2230; }
+    .pill { display:inline-flex; align-items:center; padding:2px 10px; border-radius:999px; font-size:12px; background:#1b2230; gap:6px; }
+    .pill.pending { background:#1b2230; color:#9aa0a6; }
+    .pill.ok { background:#12331f; color:#9de3c4; }
+    .pill.error { background:#3a1212; color:#ffc7c7; }
     a { color:#8ab4f8; text-decoration:none; }
     a:hover { text-decoration:underline; }
-    #topic-display { font-size:12px; color:#9aa0a6; margin-top:8px; text-align:center; opacity:.8; }
+    #topic-display { font-size:12px; color:#9aa0a6; margin:8px 20px 0; text-align:left; opacity:.85; }
   </style>
 </head>
 <body>
   <header>
-    <h1>AI Display</h1>
-    <div id="status" class="pill">Laddar konfiguration…</div>
+    <div>
+      <h1>AI Display</h1>
+    </div>
+    <div class="status-group">
+      <div id="status" class="pill pending">Laddar konfiguration…</div>
+      <div id="mqtt-status" class="pill pending">MQTT: Väntar på konfiguration…</div>
+    </div>
   </header>
-  <div id="topic-display"></div>
+  <div id="topic-display">Topic läses in…</div>
   <div id="wrap">
     <div class="card">
       <h3>Välkommen</h3>

@@ -1,4 +1,5 @@
 const statusEl = document.getElementById('status');
+const mqttStatusEl = document.getElementById('mqtt-status');
 const debugEl = document.getElementById('debug');
 const wrap = document.getElementById('wrap');
 const topicDisplayEl = document.getElementById('topic-display');
@@ -26,6 +27,18 @@ async function loadConfig() {
 
 function setStatus(label) {
   statusEl.textContent = label;
+}
+
+function setMqttStatus(label, state = 'pending') {
+  if (!mqttStatusEl) return;
+  mqttStatusEl.textContent = label;
+  mqttStatusEl.classList.remove('pending', 'ok', 'error');
+  mqttStatusEl.classList.add(state);
+}
+
+function updateTopicDisplay(message) {
+  if (!topicDisplayEl) return;
+  topicDisplayEl.textContent = message;
 }
 
 function log(msg) {
@@ -62,15 +75,22 @@ function connectMqtt(cfg) {
     log(err);
     throw new Error(err);
   }
-  
-  const topic = cfg.topicTemplate
+
+  const template = (cfg.topicTemplate || '').trim();
+  if (!template) {
+    const err = 'Fel: topicTemplate saknas i konfigurationen';
+    setStatus(err);
+    updateTopicDisplay('Topic saknas i config.json');
+    log(err);
+    throw new Error(err);
+  }
+
+  const topic = template
     .replace('{tenant}', cfg.tenant)
     .replace('{screenId}', cfg.screenId);
-  
+
   // Display the topic immediately so users can see what the app is trying to subscribe to
-  if (topicDisplayEl) {
-    topicDisplayEl.textContent = 'Topic: ' + topic;
-  }
+  updateTopicDisplay('Topic: ' + topic);
   
   // Validate that all placeholders were replaced
   if (topic.includes('{') || topic.includes('}')) {
@@ -116,6 +136,7 @@ function connectMqtt(cfg) {
 
   client.onConnectionLost = (resp) => {
     setStatus('Frånkopplad, försöker igen…');
+    setMqttStatus('MQTT: Frånkopplad – försöker igen…', 'error');
     log('connection lost: ' + (resp?.errorMessage || 'okänt'));
     setTimeout(() => client.connect(connectOptions()), 1500);
   };
@@ -136,11 +157,13 @@ function connectMqtt(cfg) {
       useSSL: !!cfg.mqtt.useTLS,
       onSuccess: () => {
         setStatus('Ansluten');
+        setMqttStatus('MQTT: Ansluten', 'ok');
         client.subscribe(topic, { qos: 0 });
         log('subscribed: ' + topic);
       },
       onFailure: (e) => {
         setStatus('Kunde inte ansluta');
+        setMqttStatus('MQTT: Kunde inte ansluta', 'error');
         log('connect failed: ' + (e?.errorMessage || ''));
       }
     };
@@ -150,14 +173,17 @@ function connectMqtt(cfg) {
   }
 
   setStatus('Ansluter…');
+  setMqttStatus('MQTT: Ansluter…', 'pending');
   client.connect(connectOptions());
-  
+
   return { client, topic };
 }
 
 loadConfig().then(cfg => {
   setStatus('Konfiguration laddad');
+  setMqttStatus('MQTT: Förbereder anslutning…', 'pending');
   connectMqtt(cfg);
 }).catch(err => {
   console.error(err);
+  setMqttStatus('MQTT: Kunde inte läsa config', 'error');
 });

@@ -122,9 +122,12 @@ function connectMqtt(cfg) {
     throw new Error(err);
   }
 
-  // Clean and validate MQTT host (remove any protocol prefixes)
+  // Clean and validate MQTT host (remove protocol prefixes and any accidental path)
   let mqttHost = cfg.mqtt.host || '';
-  mqttHost = mqttHost.replace(/^(https?:\/\/|wss?:\/\/)/i, '').trim();
+  mqttHost = mqttHost
+    .replace(/^(https?:\/\/|wss?:\/\/)/i, '')
+    .split(/[/?#]/)[0]
+    .trim();
   
   if (!mqttHost) {
     const err = 'Fel: MQTT host saknas i konfigurationen';

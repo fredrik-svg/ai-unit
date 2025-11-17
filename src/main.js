@@ -2,6 +2,16 @@ const statusEl = document.getElementById('status');
 const debugEl = document.getElementById('debug');
 const wrap = document.getElementById('wrap');
 const topicDisplayEl = document.getElementById('topic-display');
+const versionEl = document.getElementById('version');
+
+// Display load time to help users verify they have the latest version
+if (versionEl) {
+  const buildTime = new Date().toLocaleString('sv-SE', { 
+    year: 'numeric', month: '2-digit', day: '2-digit', 
+    hour: '2-digit', minute: '2-digit' 
+  });
+  versionEl.textContent = `Laddad: ${buildTime}`;
+}
 
 async function loadConfig() {
   try {

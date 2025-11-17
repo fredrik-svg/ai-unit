@@ -101,7 +101,7 @@ function connectMqtt(cfg) {
   
   // Generate a valid MQTT client ID (alphanumeric only, no special chars)
   const randomId = Math.random().toString(36).substring(2, 15);
-  const cid = (cfg.mqtt.clientIdPrefix || 'display-') + randomId;
+  const cid = (cfg.mqtt.clientIdPrefix || 'display') + randomId;
   
   let client;
   try {

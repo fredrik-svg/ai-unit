@@ -44,7 +44,7 @@ För att använda **HiveMQ Cloud**, redigera `public/config.json`:
     "useTLS": true,
     "username": "din-hivemq-användare",
     "password": "ditt-hivemq-lösenord",
-    "clientIdPrefix": "display-"
+    "clientIdPrefix": "display"
   },
   "topicTemplate": "t/{tenant}/display/{screenId}/render",
   "debug": false

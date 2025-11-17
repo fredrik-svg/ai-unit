@@ -78,8 +78,31 @@ function connectMqtt(cfg) {
     throw new Error(err);
   }
 
-  const cid = (cfg.mqtt.clientIdPrefix || 'display-') + Math.random().toString(16).slice(2);
-  const client = new Paho.MQTT.Client(cfg.mqtt.host, Number(cfg.mqtt.port), cfg.mqtt.path || '/mqtt', cid);
+  // Clean and validate MQTT host (remove any protocol prefixes)
+  let mqttHost = cfg.mqtt.host || '';
+  mqttHost = mqttHost.replace(/^(https?:\/\/|wss?:\/\/)/i, '').trim();
+  
+  if (!mqttHost) {
+    const err = 'Fel: MQTT host saknas i konfigurationen';
+    setStatus(err);
+    log(err);
+    throw new Error(err);
+  }
+  
+  // Generate a valid MQTT client ID (alphanumeric only, no special chars)
+  const randomId = Math.random().toString(36).substring(2, 15);
+  const cid = (cfg.mqtt.clientIdPrefix || 'display-') + randomId;
+  
+  let client;
+  try {
+    client = new Paho.MQTT.Client(mqttHost, Number(cfg.mqtt.port), cfg.mqtt.path || '/mqtt', cid);
+  } catch (e) {
+    const err = 'Fel vid skapande av MQTT-klient: ' + e.message + 
+                '\nKontrollera att host (' + mqttHost + '), port och path är korrekta i config.json';
+    setStatus('Konfigurationsfel');
+    log(err);
+    throw new Error(err);
+  }
 
   client.onConnectionLost = (resp) => {
     setStatus('Frånkopplad, försöker igen…');

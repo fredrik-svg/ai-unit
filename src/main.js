@@ -39,9 +39,39 @@ function render(data) {
 }
 
 function connectMqtt(cfg) {
+  // Validate required config values
+  if (!cfg.tenant || cfg.tenant.trim() === '') {
+    const err = 'Fel: tenant saknas eller är tom i konfigurationen';
+    setStatus(err);
+    log(err);
+    throw new Error(err);
+  }
+  if (!cfg.screenId || cfg.screenId.trim() === '') {
+    const err = 'Fel: screenId saknas eller är tom i konfigurationen';
+    setStatus(err);
+    log(err);
+    throw new Error(err);
+  }
+  
   const topic = cfg.topicTemplate
     .replace('{tenant}', cfg.tenant)
     .replace('{screenId}', cfg.screenId);
+  
+  // Validate that all placeholders were replaced
+  if (topic.includes('{') || topic.includes('}')) {
+    const err = 'Fel: Topic-mallen innehåller ej ersatta platshållare: ' + topic;
+    setStatus(err);
+    log(err);
+    throw new Error(err);
+  }
+  
+  // Validate topic doesn't contain MQTT wildcard characters
+  if (topic.includes('+') || topic.includes('#')) {
+    const err = 'Fel: Topic innehåller ogiltiga MQTT-tecken (+, #): ' + topic;
+    setStatus(err);
+    log(err);
+    throw new Error(err);
+  }
 
   const cid = (cfg.mqtt.clientIdPrefix || 'display-') + Math.random().toString(16).slice(2);
   const client = new Paho.MQTT.Client(cfg.mqtt.host, Number(cfg.mqtt.port), cfg.mqtt.path || '/mqtt', cid);

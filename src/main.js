@@ -14,10 +14,20 @@ if (versionEl) {
   versionEl.textContent = `Laddad: ${buildTime}`;
 }
 
+function resolveConfigUrl() {
+  let basePath = (import.meta?.env?.BASE_URL ?? '/');
+  if (!basePath.endsWith('/')) basePath += '/';
+  if (!basePath.startsWith('/')) basePath = '/' + basePath;
+  return basePath === '/' ? '/config.json' : `${basePath}config.json`;
+}
+
 async function loadConfig() {
+  const configUrl = resolveConfigUrl();
   try {
-    const res = await fetch('/config.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error('config.json saknas i public/ (kopiera config.example.json)');
+    const res = await fetch(configUrl, { cache: 'no-store' });
+    if (!res.ok) {
+      throw new Error(`config.json saknas i public/ (försökte läsa ${configUrl})`);
+    }
     return await res.json();
   } catch (e) {
     statusEl.textContent = 'Fel: ' + e.message;

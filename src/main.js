@@ -28,6 +28,10 @@ async function loadConfig() {
     if (!res.ok) {
       throw new Error(`config.json saknas i public/ (försökte läsa ${configUrl})`);
     }
+    const contentType = res.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      throw new Error(`config.json saknas i public/ (försökte läsa ${configUrl})`);
+    }
     return await res.json();
   } catch (e) {
     statusEl.textContent = 'Fel: ' + e.message;
@@ -195,5 +199,7 @@ loadConfig().then(cfg => {
   connectMqtt(cfg);
 }).catch(err => {
   console.error(err);
-  setMqttStatus('MQTT: Kunde inte läsa config', 'error');
+  // Show the actual error message instead of a generic one
+  const errorMsg = err.message || 'Kunde inte läsa config';
+  setMqttStatus('MQTT: ' + errorMsg, 'error');
 });
